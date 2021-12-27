@@ -1,0 +1,107 @@
+# Comandos docker
+docker container
+docker images
+docker volume
+docker network
+* ls
+* rm
+* prune
+* -a
+* -q 
+docker --help
+
+# Iniciando el proyecto
+docker-compose -f docker-compose.yml build
+docker images
+docker-compose -f docker-compose.yml up
+
+# Ver que pasa
+docker-compose -f docker-compose.yml ps 
+
+# Detener la aplicacion
+docker-compose -f docker-compose.yml down
+
+# Entrar a la consola
+docker exec -i -t flask-tdd-docker_api-db_1 /bin/bash
+exit
+
+# entar a postgres
+sudo -i -u postgres
+#entrar
+psql
+#salir
+\q
+
+# 26-12-2021
+# Levanta todos los contenedores
+docker-compose up -d --build
+
+# Pruebas
+## Con los contenedores en funcionamiento, ejecute las pruebas:
+docker-compose exec api python -m pytest "src/tests"
+
+## Para usar el dispositivo, lo pasamos como argumento.
+## Ejecute las pruebas nuevamente:
+docker-compose exec api python -m pytest "src/tests"
+
+
+## ¿ Notó que las pruebas en test_config.py son pruebas 
+## unitarias mientras que las pruebas en test_ping.py son funcionales? 
+## Es posible que desee diferenciar entre los dos dividiéndolos en carpetas 
+## separadas, así:
+└── pruebas
+    ├── __init__.py
+    ├── conftest.py
+    ├── funcional
+    │ └── test_ping.py
+    ├── pytest.ini
+    └── unidad
+        └── test_config.py
+
+## Con esta estructura, tiene la flexibilidad de ejecutar un solo tipo de prueba a la vez. También puede verificar la cobertura del código para un solo tipo de prueba.
+
+
+Selección de pruebas
+Puede seleccionar pruebas específicas para ejecutar utilizando la coincidencia de subcadenas.
+
+Por ejemplo, para ejecutar todas las pruebas que tienen la palabra configen sus nombres:
+
+docker-compose exec api python -m pytest "src/tests" -k config
+
+Entonces, puede ver que las tres pruebas en test_config.py se ejecutaron (y aprobaron) mientras que se omitió la prueba única en test_ping.py .
+
+Qué pruebas se ejecutarán cuando ejecute este comando:
+
+docker-compose exec api python -m pytest "src/tests" -k production
+
+
+# Flask Blueprints
+Ahora, puede trabajar con la aplicación y el contexto de db directamente:
+
+$ docker-compose up -d
+$ docker-compose exec api flask shell
+
+Python 3.9.5 (default, May 12 2021, 15:36:59)
+[GCC 8.3.0] on linux
+App: src [development]
+Instance: /usr/src/app/instance
+
+>>> app
+<Flask 'src'>
+
+>>> db
+<SQLAlchemy engine=postgres://postgres:***@api-db:5432/api_dev>
+
+>>> exit()
+
+#### aqui me quede el 26-12-2021
+Finalmente, elimine la FLASK_APPvariable de entorno de docker-compose.yml :
+
+environment:
+  - FLASK_ENV=development
+  - APP_SETTINGS=src.config.DevelopmentConfig
+  - DATABASE_URL=postgresql://postgres:postgres@api-db:5432/api_dev
+  - DATABASE_TEST_URL=postgresql://postgres:postgres@api-db:5432/api_test
+
+
+  ¡Prueba!
